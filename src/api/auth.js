@@ -1,4 +1,4 @@
-const BASE = "http://localhost:5000/api/auth";
+const BASE = `${import.meta.env.VITE_URL || "http://localhost:5000"}/api/auth`;
 
 const post = (url, body) =>
   fetch(url, {
