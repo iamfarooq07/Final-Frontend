@@ -1,119 +1,258 @@
-import { useAuth } from "../context/AuthContext";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
+import { Link } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
+import { getRequests, getMyRequests } from "../api/requests";
 
 export default function Dashboard() {
-  const { user, logout } = useAuth();
-  const navigate = useNavigate();
+  const { user } = useAuth();
+  const [stats, setStats] = useState([
+    { title: "Total Requests", value: "0", change: "+0%", icon: "📋", color: "blue" },
+    { title: "Active Requests", value: "0", change: "+0%", icon: "🔄", color: "green" },
+    { title: "Helped Users", value: "0", change: "+0%", icon: "🤝", color: "purple" },
+    { title: "Trust Score", value: "0.0", change: "+0.0", icon: "⭐", color: "yellow" },
+  ]);
+  const [recentRequests, setRecentRequests] = useState([]);
+  const [myRequests, setMyRequests] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const handleLogout = () => {
-    logout();
-    navigate("/login");
+  const fetchDashboardData = useCallback(async () => {
+    try {
+      setLoading(true);
+      const [allRequests, userRequests] = await Promise.all([
+        getRequests({}, user.token),
+        getMyRequests(user.token)
+      ]);
+
+      // Calculate stats
+      const activeRequests = allRequests.filter(r => r.status === 'open');
+      const solvedRequests = allRequests.filter(r => r.status === 'solved');
+      const userSolved = solvedRequests.filter(r => r.helperId === user._id);
+
+      setStats([
+        {
+          title: "Total Requests",
+          value: allRequests.length.toString(),
+          change: "+12%",
+          icon: "📋",
+          color: "blue"
+        },
+        {
+          title: "Active Requests",
+          value: activeRequests.length.toString(),
+          change: "+5%",
+          icon: "🔄",
+          color: "green"
+        },
+        {
+          title: "Helped Users",
+          value: userSolved.length.toString(),
+          change: "+23%",
+          icon: "🤝",
+          color: "purple"
+        },
+        {
+          title: "Trust Score",
+          value: "4.8",
+          change: "+0.2",
+          icon: "⭐",
+          color: "yellow"
+        },
+      ]);
+
+      setRecentRequests(allRequests.slice(0, 5));
+      setMyRequests(userRequests);
+    } catch (error) {
+      console.error('Failed to fetch dashboard data:', error);
+    } finally {
+      setLoading(false);
+    }
+  }, [user.token]);
+
+  useEffect(() => {
+    fetchDashboardData();
+  }, [fetchDashboardData]);
+
+  const aiInsights = [
+    "You are most active in React help requests",
+    "High demand skill: Node.js - consider learning it",
+    "Suggested: Try answering backend requests for better matching",
+    "Your response time is 2x faster than average",
+  ];
+
+  const quickActions = [
+    { title: "Create Request", description: "Post a new help request", path: "/create-request", icon: "➕", color: "blue" },
+    { title: "Browse Feed", description: "Explore available requests", path: "/feed", icon: "🔍", color: "green" },
+    { title: "View Leaderboard", description: "See top helpers", path: "/leaderboard", icon: "🏆", color: "purple" },
+    { title: "Open AI Center", description: "Get AI-powered insights", path: "/ai-center", icon: "🤖", color: "indigo" },
+  ];
+
+  const urgencyColors = {
+    High: "bg-red-50 text-red-700 border-red-200",
+    Medium: "bg-yellow-50 text-yellow-700 border-yellow-200",
+    Low: "bg-green-50 text-green-700 border-green-200",
   };
 
-  // Modern Sidebar Icons (SVG)
-  const Icons = {
-    Home: () => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5"><path strokeLinecap="round" strokeLinejoin="round" d="m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" /></svg>,
-    Stats: () => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5"><path strokeLinecap="round" strokeLinejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 0 1 3 19.875v-6.75ZM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V8.625ZM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V4.125Z" /></svg>,
-    Logout: () => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5"><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9" /></svg>
+  const statColors = {
+    blue: "bg-blue-50 text-blue-600",
+    green: "bg-green-50 text-green-600",
+    purple: "bg-purple-50 text-purple-600",
+    yellow: "bg-yellow-50 text-yellow-600",
   };
 
   return (
-    <div className="flex h-screen bg-[#F1F5F9] text-slate-900 font-sans">
-
-      {/* 1. SIDEBAR */}
-      <aside className="w-72 bg-slate-900 text-white flex flex-col p-6 hidden lg:flex">
-        <div className="flex items-center gap-3 mb-12">
-          <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center font-black italic">N</div>
-          <span className="text-2xl font-black tracking-tighter uppercase italic">Nova.</span>
+    <div className="space-y-8">
+      {/* Welcome Section */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-slate-900">Welcome back, {user?.fullName?.split(' ')[0]}!</h1>
+          <p className="text-slate-600 mt-1">Here's what's happening in your community today.</p>
         </div>
-
-        <nav className="flex-1 space-y-2">
-          {['Overview', 'Analytics', 'Projects', 'Settings'].map((item, i) => (
-            <button key={i} className={`w-full flex items-center gap-4 px-4 py-3 rounded-xl font-bold text-sm transition-all ${i === 0 ? 'bg-blue-600 text-white shadow-lg' : 'text-slate-400 hover:bg-white/5'}`}>
-              {i === 0 ? <Icons.Home /> : <Icons.Stats />}
-              {item}
-            </button>
-          ))}
-        </nav>
-
-        <button
-          onClick={handleLogout}
-          className="flex items-center gap-4 px-4 py-3 rounded-xl font-bold text-sm text-red-400 hover:bg-red-500/10 transition-all mt-auto"
-        >
-          <Icons.Logout /> Logout
-        </button>
-      </aside>
-
-      {/* 2. MAIN CONTENT AREA */}
-      <main className="flex-1 flex flex-col overflow-hidden">
-
-        {/* Top Header */}
-        <header className="h-20 bg-white border-b border-slate-200 flex items-center justify-between px-10">
-          <h2 className="text-xl font-black tracking-tight text-slate-800 uppercase italic">Dashboard <span className="text-blue-600">/</span> Overview</h2>
-          <div className="flex items-center gap-4">
-            <div className="text-right hidden sm:block">
-              <p className="text-sm font-black text-slate-900 leading-none">{user?.name}</p>
-              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{user?.email}</p>
-            </div>
-            <img src={`https://ui-avatars.com/api/?name=${user?.name}&background=0D8ABC&color=fff`} className="w-10 h-10 rounded-xl border-2 border-slate-100" />
+        <div className="flex items-center gap-3">
+          <div className="px-3 py-1 bg-green-50 text-green-700 rounded-full text-sm font-medium">
+            Online
           </div>
-        </header>
+        </div>
+      </div>
 
-        {/* Content Scrollable Area */}
-        <div className="flex-1 overflow-y-auto p-10">
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-
-            {/* Welcome Message */}
-            <div className="mb-10">
-              <h1 className="text-4xl font-black text-slate-900 tracking-tight">Hello {user?.name.split(' ')[0]} 👋</h1>
-              <p className="text-slate-500 font-medium mt-1">Here's what's happening with your projects today.</p>
-            </div>
-
-            {/* Stats Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
-              {[
-                { label: 'Total Projects', value: '12', color: 'bg-blue-600' },
-                { label: 'Completed', value: '08', color: 'bg-green-500' },
-                { label: 'In Progress', value: '04', color: 'bg-amber-500' }
-              ].map((stat, i) => (
-                <div key={i} className="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm hover:shadow-xl transition-all group">
-                  <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-2">{stat.label}</p>
-                  <div className="flex items-end justify-between">
-                    <h3 className="text-4xl font-black text-slate-900">{stat.value}</h3>
-                    <div className={`w-10 h-2 rounded-full ${stat.color} opacity-20 group-hover:opacity-100 transition-opacity`} />
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            {/* Recent Activity / Table Area */}
-            <div className="bg-white border border-slate-200 rounded-[2.5rem] p-10 shadow-sm">
-              <div className="flex justify-between items-center mb-8">
-                <h4 className="text-xl font-black text-slate-900 italic uppercase">Recent Activity</h4>
-                <button className="text-xs font-black text-blue-600 uppercase tracking-widest hover:underline">View All</button>
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        {stats.map((stat, index) => (
+          <motion.div
+            key={index}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: index * 0.1 }}
+            className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm hover:shadow-md transition-all duration-200"
+          >
+            <div className="flex items-center justify-between mb-4">
+              <div className={`w-12 h-12 ${statColors[stat.color]} rounded-xl flex items-center justify-center text-xl`}>
+                {stat.icon}
               </div>
+              <span className="text-sm font-medium text-green-600 bg-green-50 px-2 py-1 rounded-lg">
+                {stat.change}
+              </span>
+            </div>
+            <h3 className="text-3xl font-bold text-slate-900 mb-1">{stat.value}</h3>
+            <p className="text-slate-600 text-sm font-medium">{stat.title}</p>
+          </motion.div>
+        ))}
+      </div>
 
-              {/* Placeholder for Table */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* Recent Requests */}
+        <div className="lg:col-span-2">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm"
+          >
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-xl font-semibold text-slate-900">Recent Community Requests</h2>
+              <Link
+                to="/feed"
+                className="text-sm text-blue-600 hover:text-blue-700 font-medium"
+              >
+                View all →
+              </Link>
+            </div>
+            {loading ? (
               <div className="space-y-4">
-                {[1, 2, 3].map(item => (
-                  <div key={item} className="flex items-center justify-between p-4 bg-slate-50 rounded-2xl border border-slate-100 group hover:border-blue-200 transition-all">
-                    <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center font-bold text-slate-400 shadow-sm">#{item}</div>
-                      <div>
-                        <p className="font-black text-slate-800 text-sm italic uppercase">Project Alpha-0{item}</p>
-                        <p className="text-xs text-slate-500 font-medium">Updated 2 hours ago</p>
-                      </div>
-                    </div>
-                    <span className="px-4 py-1.5 bg-green-100 text-green-700 rounded-full text-[10px] font-black uppercase tracking-widest">Active</span>
+                {[1, 2, 3].map(i => (
+                  <div key={i} className="animate-pulse">
+                    <div className="h-20 bg-slate-100 rounded-lg"></div>
                   </div>
                 ))}
               </div>
-            </div>
-
+            ) : (
+              <div className="space-y-4">
+                {recentRequests.map((request) => (
+                  <div key={request._id} className="flex items-center justify-between p-4 bg-slate-50 rounded-xl hover:bg-slate-100 transition-colors">
+                    <div className="flex-1">
+                      <h3 className="font-semibold text-slate-900 mb-2 line-clamp-1">{request.title}</h3>
+                      <div className="flex items-center gap-2 mb-3">
+                        <span className="text-xs bg-slate-200 text-slate-700 px-3 py-1 rounded-full font-medium">
+                          {request.category}
+                        </span>
+                        <span className={`text-xs px-3 py-1 rounded-full border font-medium ${urgencyColors[request.urgency]}`}>
+                          {request.urgency}
+                        </span>
+                      </div>
+                      <div className="flex flex-wrap gap-1">
+                        {request.tags.slice(0, 3).map((tag, index) => (
+                          <span key={index} className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-md font-medium">
+                            {tag}
+                          </span>
+                        ))}
+                        {request.tags.length > 3 && (
+                          <span className="text-xs text-slate-500">+{request.tags.length - 3} more</span>
+                        )}
+                      </div>
+                    </div>
+                    <Link
+                      to={`/request/${request._id}`}
+                      className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors ml-4"
+                    >
+                      View
+                    </Link>
+                  </div>
+                ))}
+                {recentRequests.length === 0 && (
+                  <div className="text-center py-8">
+                    <p className="text-slate-500">No requests yet. Be the first to create one!</p>
+                  </div>
+                )}
+              </div>
+            )}
           </motion.div>
         </div>
-      </main>
+
+        {/* AI Insights */}
+        <div>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-6 shadow-sm"
+          >
+            <div className="flex items-center gap-2 mb-6">
+              <span className="text-2xl">🤖</span>
+              <h2 className="text-xl font-semibold text-slate-900">AI Insights</h2>
+            </div>
+            <div className="space-y-4">
+              {aiInsights.map((insight, index) => (
+                <div key={index} className="flex items-start gap-3 p-3 bg-white/60 rounded-lg">
+                  <span className="text-blue-600 mt-0.5">💡</span>
+                  <p className="text-sm text-slate-700 leading-relaxed">{insight}</p>
+                </div>
+              ))}
+            </div>
+          </motion.div>
+        </div>
+      </div>
+
+      {/* Quick Actions */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm"
+      >
+        <h2 className="text-xl font-semibold text-slate-900 mb-6">Quick Actions</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          {quickActions.map((action, index) => (
+            <Link
+              key={index}
+              to={action.path}
+              className="group flex flex-col items-center p-6 bg-slate-50 rounded-xl hover:bg-slate-100 transition-all duration-200 hover:shadow-md"
+            >
+              <span className={`text-3xl mb-3 ${statColors[action.color]} w-16 h-16 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform`}>
+                {action.icon}
+              </span>
+              <h3 className="font-semibold text-slate-900 text-center mb-2">{action.title}</h3>
+              <p className="text-xs text-slate-600 text-center leading-relaxed">{action.description}</p>
+            </Link>
+          ))}
+        </div>
+      </motion.div>
     </div>
   );
 }

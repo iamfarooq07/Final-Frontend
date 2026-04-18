@@ -21,7 +21,11 @@ export default function Login() {
     setLoading(false);
     if (data.token) {
       login(data);
-      navigate("/dashboard");
+      if (!data.hasCompletedOnboarding) {
+        navigate("/onboarding");
+      } else {
+        navigate("/dashboard");
+      }
     } else {
       setError(data.message || "Invalid credentials");
     }
