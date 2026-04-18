@@ -10,6 +10,7 @@ export default function Leaderboard() {
       rank: 1,
       name: "Sarah Chen",
       avatar: "SC",
+      profilePicture: null,
       trustScore: 4.9,
       helpsGiven: 47,
       badges: ["🏅", "⚡", "🤝"],
@@ -19,6 +20,7 @@ export default function Leaderboard() {
       rank: 2,
       name: "Mike Johnson",
       avatar: "MJ",
+      profilePicture: null,
       trustScore: 4.8,
       helpsGiven: 42,
       badges: ["🏅", "🤝"],
@@ -28,6 +30,7 @@ export default function Leaderboard() {
       rank: 3,
       name: "Alice Brown",
       avatar: "AB",
+      profilePicture: null,
       trustScore: 4.7,
       helpsGiven: 38,
       badges: ["⚡", "🤝"],
@@ -37,6 +40,7 @@ export default function Leaderboard() {
       rank: 4,
       name: "David Wilson",
       avatar: "DW",
+      profilePicture: null,
       trustScore: 4.6,
       helpsGiven: 35,
       badges: ["🤝"],
@@ -46,6 +50,7 @@ export default function Leaderboard() {
       rank: 5,
       name: "Emma Davis",
       avatar: "ED",
+      profilePicture: null,
       trustScore: 4.5,
       helpsGiven: 31,
       badges: ["⚡"],
@@ -197,7 +202,15 @@ export default function Leaderboard() {
                 </div>
 
                 <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-bold">
-                  {user.avatar}
+                  {user.profilePicture ? (
+                    <img
+                      src={user.profilePicture}
+                      alt={user.name}
+                      className="w-12 h-12 rounded-full object-cover"
+                    />
+                  ) : (
+                    user.name.charAt(0).toUpperCase()
+                  )}
                 </div>
 
                 <div className="flex-1">

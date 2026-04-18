@@ -24,3 +24,13 @@ export const completeOnboardingCall = (data, token) =>
     },
     body: JSON.stringify(data),
   }).then((r) => r.json());
+
+export const updateProfilePicture = (data, token) =>
+  fetch(`${BASE}/profile-picture`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(data),
+  }).then((r) => r.json());

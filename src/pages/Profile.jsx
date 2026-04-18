@@ -1,8 +1,39 @@
+import { useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import { motion } from "framer-motion";
+import { updateProfilePicture } from "../api/auth";
 
 export default function Profile() {
-  const { user } = useAuth();
+  const { user, login } = useAuth();
+  const [showPicModal, setShowPicModal] = useState(false);
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [updating, setUpdating] = useState(false);
+
+  const handleUpdateProfilePicture = async () => {
+    if (!selectedFile) return;
+    try {
+      setUpdating(true);
+      const formData = new FormData();
+      formData.append('profilePicture', selectedFile);
+
+      const response = await fetch(`${import.meta.env.VITE_URL || "http://localhost:5000"}/api/auth/profile-picture`, {
+        method: 'PUT',
+        headers: {
+          Authorization: `Bearer ${user.token}`,
+        },
+        body: formData,
+      });
+
+      const updatedUser = await response.json();
+      login({ ...updatedUser, token: user.token });
+      setShowPicModal(false);
+      setSelectedFile(null);
+    } catch (error) {
+      console.error("Failed to update profile picture:", error);
+    } finally {
+      setUpdating(false);
+    }
+  };
 
   // Dummy data
   const userStats = {
@@ -47,8 +78,24 @@ export default function Profile() {
         className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm"
       >
         <div className="flex items-center gap-6">
-          <div className="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center text-3xl font-bold text-blue-600">
-            {user?.fullName?.charAt(0)?.toUpperCase() || "U"}
+          <div className="relative">
+            {user?.profilePicture ? (
+              <img
+                src={user.profilePicture}
+                alt="Profile"
+                className="w-12 h-12 rounded-full object-cover"
+              />
+            ) : (
+              <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center text-xl font-bold text-blue-600">
+                {user?.fullName?.charAt(0)?.toUpperCase() || "U"}
+              </div>
+            )}
+            <button 
+              onClick={() => setShowPicModal(true)}
+              className="absolute bottom-0 right-0 bg-blue-600 text-white p-1 rounded-full hover:bg-blue-700 transition-colors"
+            >
+              📷
+            </button>
           </div>
           <div className="flex-1">
             <h2 className="text-xl font-bold text-slate-900 mb-1">{user?.fullName || "User Name"}</h2>
@@ -148,6 +195,56 @@ export default function Profile() {
           ))}
         </div>
       </motion.div>
+
+      {/* Profile Picture Modal */}
+      {showPicModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="bg-white rounded-2xl p-6 max-w-md w-full mx-4"
+          >
+            <h3 className="text-lg font-semibold text-slate-900 mb-4">Update Profile Picture</h3>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={(e) => setSelectedFile(e.target.files[0])}
+              className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-blue-600/5 focus:border-blue-600/40 mb-4"
+            />
+            {selectedFile && (
+              <div className="mb-4">
+                <img
+                  src={URL.createObjectURL(selectedFile)}
+                  alt="Preview"
+                  className="w-20 h-20 rounded-full object-cover mx-auto"
+                />
+              </div>
+            )}
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => setShowPicModal(false)}
+                className="px-4 py-2 text-slate-600 hover:text-slate-900 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleUpdateProfilePicture}
+                disabled={updating || !selectedFile}
+                className="bg-blue-600 text-white px-4 py-2 rounded-xl hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              >
+                {updating ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    Updating...
+                  </>
+                ) : (
+                  "Update"
+                )}
+              </button>
+            </div>
+          </motion.div>
+        </div>
+      )}
     </div>
   );
 }

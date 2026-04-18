@@ -135,9 +135,17 @@ export default function RequestDetail() {
 
         {/* Author Info */}
         <div className="flex items-center gap-4 mb-6 p-4 bg-slate-50 rounded-xl">
-          <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-bold">
-            {request.userId?.fullName?.charAt(0) || "U"}
-          </div>
+          {request.userId?.profilePicture ? (
+            <img
+              src={request.userId.profilePicture}
+              alt="Author"
+              className="w-12 h-12 rounded-full object-cover"
+            />
+          ) : (
+            <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-bold">
+              {request.userId?.fullName?.charAt(0) || "U"}
+            </div>
+          )}
           <div className="flex-1">
             <h3 className="font-medium text-slate-900">{request.userId?.fullName || "Unknown User"}</h3>
             <p className="text-sm text-slate-600">Role: {request.userId?.role || "N/A"}</p>
