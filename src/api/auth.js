@@ -14,3 +14,13 @@ export const getMe = (token) =>
   fetch(`${BASE}/me`, {
     headers: { Authorization: `Bearer ${token}` },
   }).then((r) => r.json());
+
+export const completeOnboardingCall = (data, token) =>
+  fetch(`${BASE}/onboarding`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(data),
+  }).then((r) => r.json());

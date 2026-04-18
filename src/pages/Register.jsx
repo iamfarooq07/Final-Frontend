@@ -5,7 +5,7 @@ import { registerUser } from "../api/auth";
 import { useAuth } from "../context/AuthContext";
 
 export default function Register() {
-  const [form, setForm] = useState({ name: "", email: "", password: "" });
+  const [form, setForm] = useState({ name: "", email: "", password: "", role: "Need Help" });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const { login } = useAuth();
@@ -21,7 +21,11 @@ export default function Register() {
     setLoading(false);
     if (data.token) {
       login(data);
-      navigate("/dashboard");
+      if (!data.onboardingCompleted) {
+        navigate("/onboarding");
+      } else {
+        navigate("/dashboard");
+      }
     } else {
       setError(data.message || "Registration failed");
     }
@@ -81,9 +85,21 @@ export default function Register() {
             <label className="block text-[9px] font-black uppercase tracking-[0.2em] text-slate-400 mb-1.5 ml-1">Password</label>
             <input
               name="password" type="password" required minLength={6} value={form.password} onChange={handleChange}
-              className="w-full bg-slate-50/50 border border-slate-100 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-4 focus:ring-blue-600/5 focus:border-blue-600/40 transition-all"
+              className="w-full bg-slate-50/50 border border-slate-100 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-4 focus:ring-blue-600/5 focus:border-blue-600/40 transition-all mb-4"
               placeholder="••••••••"
             />
+          </div>
+
+          <div>
+            <label className="block text-[9px] font-black uppercase tracking-[0.2em] text-slate-400 mb-1.5 ml-1">Role</label>
+            <select
+              name="role" value={form.role} onChange={handleChange}
+              className="w-full bg-slate-50/50 border border-slate-100 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-4 focus:ring-blue-600/5 focus:border-blue-600/40 transition-all appearance-none"
+            >
+              <option value="Need Help">Need Help</option>
+              <option value="Can Help">Can Help</option>
+              <option value="Both">Both</option>
+            </select>
           </div>
 
           <motion.button
