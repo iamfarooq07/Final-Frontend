@@ -49,7 +49,7 @@ export default function Login() {
           y: { duration: 25, repeat: Infinity, ease: "easeInOut" }
         }}
         className="absolute top-[-5%] right-[-5%] w-[300px] h-[300px] bg-blue-100/50 blur-[80px] rounded-full -z-10"
-      />
+      />''
       <motion.div
         initial={{ scale: 0, opacity: 0 }}
         animate={{
