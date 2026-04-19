@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { createRequest } from "../api/requests";
+import { Bot, Target, MessageCircle, Sparkles, Wand2, Tag } from "lucide-react";
 
 export default function CreateRequest() {
   const navigate = useNavigate();
@@ -185,10 +186,11 @@ export default function CreateRequest() {
                 <button
                   type="button"
                   onClick={improveDescription}
-                  className="text-xs bg-blue-100 text-blue-700 px-3 py-1 rounded-full hover:bg-blue-200 transition-colors"
+                  className="text-xs bg-blue-100 text-blue-700 px-3 py-1 rounded-full hover:bg-blue-200 transition-colors flex items-center gap-1"
                   disabled={!formData.description}
                 >
-                  ✨ Improve with AI
+                  <Wand2 className="w-3 h-3" />
+                  Improve with AI
                 </button>
               </div>
               <textarea
@@ -319,13 +321,13 @@ export default function CreateRequest() {
             className="bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-6 shadow-sm"
           >
             <h3 className="text-lg font-semibold text-slate-900 mb-6 flex items-center gap-2">
-              <span className="text-2xl">🤖</span>
+              <Bot className="w-6 h-6 text-blue-600" />
               AI Assistant
             </h3>
             <div className="space-y-4">
               <div className="bg-white/70 rounded-lg p-4">
                 <h4 className="font-semibold text-slate-900 mb-2 flex items-center gap-2">
-                  <span className="text-blue-600">🎯</span>
+                  <Target className="w-4 h-4 text-blue-600" />
                   Smart Categorization
                 </h4>
                 <p className="text-sm text-slate-600">
@@ -339,7 +341,7 @@ export default function CreateRequest() {
 
               <div className="bg-white/70 rounded-lg p-4">
                 <h4 className="font-semibold text-slate-900 mb-2 flex items-center gap-2">
-                  <span className="text-green-600">🏷️</span>
+                  <Tag className="w-4 h-4 text-green-600" />
                   Tag Suggestions
                 </h4>
                 <p className="text-sm text-slate-600 mb-3">
@@ -361,7 +363,7 @@ export default function CreateRequest() {
 
               <div className="bg-white/70 rounded-lg p-4">
                 <h4 className="font-semibold text-slate-900 mb-2 flex items-center gap-2">
-                  <span className="text-purple-600">💬</span>
+                  <MessageCircle className="w-4 h-4 text-purple-600" />
                   Response Preview
                 </h4>
                 <p className="text-sm text-slate-600 mb-3">
@@ -376,7 +378,7 @@ export default function CreateRequest() {
 
               <div className="bg-white/70 rounded-lg p-4">
                 <h4 className="font-semibold text-slate-900 mb-2 flex items-center gap-2">
-                  <span className="text-orange-600">✨</span>
+                  <Sparkles className="w-4 h-4 text-orange-600" />
                   Description Enhancement
                 </h4>
                 <p className="text-sm text-slate-600">

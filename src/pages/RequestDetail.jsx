@@ -1,8 +1,9 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
 import { useParams, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { getRequestById, updateRequestStatus } from "../api/requests";
+import { Bot } from "lucide-react";
 
 export default function RequestDetail() {
   const { id } = useParams();
@@ -184,7 +185,7 @@ export default function RequestDetail() {
         className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-2xl p-6 shadow-sm"
       >
         <h3 className="font-semibold text-slate-900 mb-3 flex items-center gap-2">
-          <span className="text-xl">🤖</span>
+          <Bot className="w-5 h-5 text-blue-600" />
           AI Summary
         </h3>
         <p className="text-slate-700">

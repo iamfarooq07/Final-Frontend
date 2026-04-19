@@ -1,70 +1,26 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
+import { FileText, Flag, BarChart3, Users } from "lucide-react";
 
 export default function Admin() {
   const [activeTab, setActiveTab] = useState("requests");
 
-  // Dummy data
-  const requests = [
-    {
-      id: 1,
-      title: "React component optimization",
-      user: "John Doe",
-      status: "Active",
-      category: "Frontend",
-      createdAt: "2024-01-15",
-      flagged: false
-    },
-    {
-      id: 2,
-      title: "Node.js API authentication",
-      user: "Jane Smith",
-      status: "Resolved",
-      category: "Backend",
-      createdAt: "2024-01-14",
-      flagged: true
-    },
-    {
-      id: 3,
-      title: "Database schema design",
-      user: "Bob Johnson",
-      status: "Pending",
-      category: "Database",
-      createdAt: "2024-01-13",
-      flagged: false
-    }
-  ];
-
+  // Note: Replace with API calls to fetch real data when backend is ready
+  const requests = [];
   const analytics = {
-    totalUsers: 1247,
-    totalRequests: 892,
-    activeRequests: 156,
-    resolvedRequests: 736,
-    averageResponseTime: "2.3 hours",
-    topCategory: "Frontend"
+    totalUsers: 0,
+    totalRequests: 0,
+    activeRequests: 0,
+    resolvedRequests: 0,
+    averageResponseTime: "N/A",
+    topCategory: "N/A"
   };
-
-  const flaggedContent = [
-    {
-      id: 1,
-      type: "request",
-      content: "Inappropriate language in request",
-      reportedBy: "User123",
-      status: "Pending Review"
-    },
-    {
-      id: 2,
-      type: "message",
-      content: "Spam message in chat",
-      reportedBy: "User456",
-      status: "Reviewed"
-    }
-  ];
+  const flaggedContent = [];
 
   const tabs = [
-    { id: "requests", label: "Manage Requests", icon: "📋" },
-    { id: "content", label: "Moderate Content", icon: "🚩" },
-    { id: "analytics", label: "Analytics", icon: "📊" }
+    { id: "requests", label: "Manage Requests", icon: FileText },
+    { id: "content", label: "Moderate Content", icon: Flag },
+    { id: "analytics", label: "Analytics", icon: BarChart3 }
   ];
 
   const statusColors = {
@@ -95,7 +51,7 @@ export default function Admin() {
                 : "border-transparent text-slate-600 hover:text-slate-900"
             }`}
           >
-            <span>{tab.icon}</span>
+            <tab.icon className="w-4 h-4" />
             {tab.label}
           </button>
         ))}
@@ -189,14 +145,14 @@ export default function Admin() {
           {/* Stats Cards */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {[
-              { label: "Total Users", value: analytics.totalUsers, icon: "👥" },
-              { label: "Total Requests", value: analytics.totalRequests, icon: "📋" },
-              { label: "Active Requests", value: analytics.activeRequests, icon: "🔄" },
-              { label: "Resolved Requests", value: analytics.resolvedRequests, icon: "✅" }
+              { label: "Total Users", value: analytics.totalUsers, icon: Users },
+              { label: "Total Requests", value: analytics.totalRequests, icon: FileText },
+              { label: "Active Requests", value: analytics.activeRequests, icon: BarChart3 },
+              { label: "Resolved Requests", value: analytics.resolvedRequests, icon: Flag }
             ].map((stat, index) => (
               <div key={index} className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm text-center">
-                <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center text-2xl mx-auto mb-4">
-                  {stat.icon}
+                <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center mx-auto mb-4">
+                  <stat.icon className="w-6 h-6 text-blue-600" />
                 </div>
                 <h3 className="text-2xl font-bold text-slate-900 mb-1">{stat.value.toLocaleString()}</h3>
                 <p className="text-slate-600 text-sm">{stat.label}</p>

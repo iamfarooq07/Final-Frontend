@@ -3,14 +3,15 @@ import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { getRequests, getMyRequests } from "../api/requests";
+import { FileText, RotateCcw, Users, Star, Trophy, Bot, Lightbulb, Plus, Search, Zap } from "lucide-react";
 
 export default function Dashboard() {
   const { user } = useAuth();
   const [stats, setStats] = useState([
-    { title: "Total Requests", value: "0", change: "+0%", icon: "📋", color: "blue" },
-    { title: "Active Requests", value: "0", change: "+0%", icon: "🔄", color: "green" },
-    { title: "Helped Users", value: "0", change: "+0%", icon: "🤝", color: "purple" },
-    { title: "Trust Score", value: "0.0", change: "+0.0", icon: "⭐", color: "yellow" },
+    { title: "Total Requests", value: "0", change: "+0%", icon: FileText, color: "blue" },
+    { title: "Active Requests", value: "0", change: "+0%", icon: RotateCcw, color: "green" },
+    { title: "Helped Users", value: "0", change: "+0%", icon: Users, color: "purple" },
+    { title: "Trust Score", value: "0.0", change: "+0.0", icon: Star, color: "yellow" },
   ]);
   const [recentRequests, setRecentRequests] = useState([]);
   const [myRequests, setMyRequests] = useState([]);
@@ -34,28 +35,28 @@ export default function Dashboard() {
           title: "Total Requests",
           value: allRequests.length.toString(),
           change: "+12%",
-          icon: "📋",
+          icon: FileText,
           color: "blue"
         },
         {
           title: "Active Requests",
           value: activeRequests.length.toString(),
           change: "+5%",
-          icon: "🔄",
+          icon: RotateCcw,
           color: "green"
         },
         {
           title: "Helped Users",
           value: userSolved.length.toString(),
           change: "+23%",
-          icon: "🤝",
+          icon: Users,
           color: "purple"
         },
         {
           title: "Trust Score",
           value: "4.8",
           change: "+0.2",
-          icon: "⭐",
+          icon: Star,
           color: "yellow"
         },
       ]);
@@ -81,10 +82,10 @@ export default function Dashboard() {
   ];
 
   const quickActions = [
-    { title: "Create Request", description: "Post a new help request", path: "/create-request", icon: "➕", color: "blue" },
-    { title: "Browse Feed", description: "Explore available requests", path: "/feed", icon: "🔍", color: "green" },
-    { title: "View Leaderboard", description: "See top helpers", path: "/leaderboard", icon: "🏆", color: "purple" },
-    { title: "Open AI Center", description: "Get AI-powered insights", path: "/ai-center", icon: "🤖", color: "indigo" },
+    { title: "Create Request", description: "Post a new help request", path: "/create-request", icon: Plus, color: "blue" },
+    { title: "Browse Feed", description: "Explore available requests", path: "/feed", icon: Search, color: "green" },
+    { title: "View Leaderboard", description: "See top helpers", path: "/leaderboard", icon: Trophy, color: "purple" },
+    { title: "Open AI Center", description: "Get AI-powered insights", path: "/ai-center", icon: Bot, color: "indigo" },
   ];
 
   const urgencyColors = {
@@ -126,8 +127,8 @@ export default function Dashboard() {
             className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm hover:shadow-md transition-all duration-200"
           >
             <div className="flex items-center justify-between mb-4">
-              <div className={`w-12 h-12 ${statColors[stat.color]} rounded-xl flex items-center justify-center text-xl`}>
-                {stat.icon}
+              <div className={`w-12 h-12 ${statColors[stat.color]} rounded-xl flex items-center justify-center`}>
+                <stat.icon className="w-6 h-6" />
               </div>
               <span className="text-sm font-medium text-green-600 bg-green-50 px-2 py-1 rounded-lg">
                 {stat.change}
@@ -215,13 +216,13 @@ export default function Dashboard() {
             className="bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-6 shadow-sm"
           >
             <div className="flex items-center gap-2 mb-6">
-              <span className="text-2xl">🤖</span>
+              <Bot className="w-6 h-6 text-blue-600" />
               <h2 className="text-xl font-semibold text-slate-900">AI Insights</h2>
             </div>
             <div className="space-y-4">
               {aiInsights.map((insight, index) => (
                 <div key={index} className="flex items-start gap-3 p-3 bg-white/60 rounded-lg">
-                  <span className="text-blue-600 mt-0.5">💡</span>
+                  <Lightbulb className="w-4 h-4 text-blue-600 mt-0.5" />
                   <p className="text-sm text-slate-700 leading-relaxed">{insight}</p>
                 </div>
               ))}
@@ -244,9 +245,9 @@ export default function Dashboard() {
               to={action.path}
               className="group flex flex-col items-center p-6 bg-slate-50 rounded-xl hover:bg-slate-100 transition-all duration-200 hover:shadow-md"
             >
-              <span className={`text-3xl mb-3 ${statColors[action.color]} w-16 h-16 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform`}>
-                {action.icon}
-              </span>
+              <div className={`mb-3 ${statColors[action.color]} w-16 h-16 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform`}>
+                <action.icon className="w-8 h-8" />
+              </div>
               <h3 className="font-semibold text-slate-900 text-center mb-2">{action.title}</h3>
               <p className="text-xs text-slate-600 text-center leading-relaxed">{action.description}</p>
             </Link>

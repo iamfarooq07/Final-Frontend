@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { useAuth } from "../context/AuthContext";
 import { getRequests } from "../api/requests";
 import { Link } from "react-router-dom";
+import { Search } from "lucide-react";
 
 export default function Feed() {
   const { user } = useAuth();
@@ -68,7 +69,7 @@ export default function Feed() {
         className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm"
       >
         <div className="flex items-center gap-2 mb-6">
-          <span className="text-xl">🔍</span>
+          <Search className="w-5 h-5 text-slate-600" />
           <h3 className="text-lg font-semibold text-slate-900">Filters</h3>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">

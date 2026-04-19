@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
+import { ThemeProvider } from "./context/ThemeContext";
 import ProtectedRoute from "./components/ProtectedRoute";
 import DashboardLayout from "./components/DashboardLayout";
 import Login from "./pages/Login";
@@ -19,8 +20,9 @@ import Home from "./Home";
 
 export default function App() {
   return (
-    <AuthProvider>
-      <BrowserRouter>
+    <ThemeProvider>
+      <AuthProvider>
+        <BrowserRouter>
         <Routes>
           <Route path="/" element={<Navigate to="/home" replace />} />
           <Route path="/home" element={<Home />} />
@@ -146,7 +148,8 @@ export default function App() {
             }
           />
         </Routes>
-      </BrowserRouter>
-    </AuthProvider>
+        </BrowserRouter>
+      </AuthProvider>
+    </ThemeProvider>
   );
 }

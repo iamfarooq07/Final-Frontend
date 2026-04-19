@@ -1,127 +1,76 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
+import { useAuth } from "../context/AuthContext";
+import { getLeaderboard } from "../api/notifications";
+import { Trophy, Medal, Star, Award } from "lucide-react";
 
 export default function Leaderboard() {
+  const { user } = useAuth();
   const [timeframe, setTimeframe] = useState("month");
+  const [leaderboard, setLeaderboard] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  // Dummy leaderboard data
-  const leaderboard = [
-    {
-      rank: 1,
-      name: "Sarah Chen",
-      avatar: "SC",
-      profilePicture: null,
-      trustScore: 4.9,
-      helpsGiven: 47,
-      badges: ["🏅", "⚡", "🤝"],
-      change: "+2"
-    },
-    {
-      rank: 2,
-      name: "Mike Johnson",
-      avatar: "MJ",
-      profilePicture: null,
-      trustScore: 4.8,
-      helpsGiven: 42,
-      badges: ["🏅", "🤝"],
-      change: "+1"
-    },
-    {
-      rank: 3,
-      name: "Alice Brown",
-      avatar: "AB",
-      profilePicture: null,
-      trustScore: 4.7,
-      helpsGiven: 38,
-      badges: ["⚡", "🤝"],
-      change: "-1"
-    },
-    {
-      rank: 4,
-      name: "David Wilson",
-      avatar: "DW",
-      profilePicture: null,
-      trustScore: 4.6,
-      helpsGiven: 35,
-      badges: ["🤝"],
-      change: "+3"
-    },
-    {
-      rank: 5,
-      name: "Emma Davis",
-      avatar: "ED",
-      profilePicture: null,
-      trustScore: 4.5,
-      helpsGiven: 31,
-      badges: ["⚡"],
-      change: "0"
-    },
-    {
-      rank: 6,
-      name: "John Smith",
-      avatar: "JS",
-      trustScore: 4.4,
-      helpsGiven: 28,
-      badges: [],
-      change: "-2"
-    },
-    {
-      rank: 7,
-      name: "Lisa Wang",
-      avatar: "LW",
-      trustScore: 4.3,
-      helpsGiven: 25,
-      badges: ["🤝"],
-      change: "+1"
-    },
-    {
-      rank: 8,
-      name: "Tom Anderson",
-      avatar: "TA",
-      trustScore: 4.2,
-      helpsGiven: 22,
-      badges: [],
-      change: "0"
-    }
-  ];
+  useEffect(() => {
+    const fetchLeaderboard = async () => {
+      try {
+        setLoading(true);
+        const data = await getLeaderboard(timeframe, user.token);
+        setLeaderboard(data || []);
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  const badgeDescriptions = {
-    "🏅": "Top Helper",
-    "⚡": "Fast Responder",
-    "🤝": "Community Hero"
+    fetchLeaderboard();
+  }, [timeframe, user.token]);
+
+  const getInitials = (name) => {
+    if (!name) return "U";
+    return name.split(" ").map(n => n[0]).join("").toUpperCase();
   };
 
   const getRankStyle = (rank) => {
     switch (rank) {
-      case 1:
-        return "bg-gradient-to-r from-yellow-400 to-yellow-600 text-white";
-      case 2:
-        return "bg-gradient-to-r from-gray-300 to-gray-500 text-white";
-      case 3:
-        return "bg-gradient-to-r from-orange-400 to-orange-600 text-white";
-      default:
-        return "bg-slate-100 text-slate-600";
+      case 1: return "bg-yellow-500 text-white";
+      case 2: return "bg-gray-400 text-white";
+      case 3: return "bg-orange-500 text-white";
+      default: return "bg-slate-100 text-slate-600";
     }
   };
 
+  // ✅ FIXED FUNCTION
   const getChangeColor = (change) => {
-    if (change.startsWith("+")) return "text-green-600";
-    if (change.startsWith("-")) return "text-red-600";
+    if (!change) return "text-slate-500";
+    if (typeof change === "number") {
+      if (change > 0) return "text-green-600";
+      if (change < 0) return "text-red-600";
+    }
+    if (typeof change === "string") {
+      if (change.startsWith("+")) return "text-green-600";
+      if (change.startsWith("-")) return "text-red-600";
+    }
     return "text-slate-500";
   };
+
+  if (loading) {
+    return <div className="text-center p-10 text-slate-600">Loading leaderboard...</div>;
+  }
 
   return (
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Leaderboard</h1>
-          <p className="text-slate-600">Top helpers in our community</p>
+          <h1 className="text-3xl font-bold text-slate-900">Leaderboard</h1>
+          <p className="text-slate-600 mt-1">Top helpers in our community</p>
         </div>
+
         <select
           value={timeframe}
           onChange={(e) => setTimeframe(e.target.value)}
-          className="bg-white border border-slate-200 rounded-xl px-4 py-2 text-sm focus:outline-none focus:ring-4 focus:ring-blue-600/5 focus:border-blue-600/40"
+          className="bg-white border border-slate-200 rounded-xl px-4 py-2 text-sm font-medium focus:outline-none focus:ring-4 focus:ring-blue-600/5 focus:border-blue-600/40"
         >
           <option value="week">This Week</option>
           <option value="month">This Month</option>
@@ -131,136 +80,133 @@ export default function Leaderboard() {
       </div>
 
       {/* Top 3 Podium */}
+      {leaderboard.length > 0 && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="grid grid-cols-3 gap-4 mb-8"
+        >
+          {[1, 0, 2].map((idx) => {
+            const u = leaderboard[idx];
+            if (!u) return null;
+            const medalIcons = [
+              <Trophy className="w-8 h-8" />, // Gold
+              <Medal className="w-8 h-8" />, // Silver
+              <Award className="w-8 h-8" />  // Bronze
+            ];
+            return (
+              <div
+                key={u.rank}
+                className={`relative rounded-2xl p-6 text-center text-white ${
+                  u.rank === 1 ? "bg-gradient-to-br from-yellow-400 to-yellow-600 scale-105" :
+                  u.rank === 2 ? "bg-gradient-to-br from-gray-300 to-gray-500" :
+                  "bg-gradient-to-br from-orange-400 to-orange-600"
+                }`}
+              >
+                <div className="mb-3 flex justify-center">
+                  {medalIcons[idx]}
+                </div>
+                <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center text-2xl font-bold mx-auto mb-3">
+                  {getInitials(u.name)}
+                </div>
+                <h3 className="font-bold text-lg">{u.name}</h3>
+                <p className="text-sm opacity-90 mb-2">#{u.rank}</p>
+                <div className="flex justify-center gap-1 mb-3">
+                  {u.badges?.map((badge, i) => (
+                    <span key={i} className="text-xl">{badge}</span>
+                  ))}
+                </div>
+                <div className="text-sm font-semibold">
+                  <div className="flex items-center justify-center gap-1">
+                    <Star className="w-4 h-4" />
+                    <span>{u.trustScore?.toFixed(1) || "N/A"}</span>
+                  </div>
+                  <p>{u.helpsGiven} helps</p>
+                </div>
+              </div>
+            );
+          })}
+        </motion.div>
+      )}
+
+      {/* Full Leaderboard Table */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="grid grid-cols-3 gap-4 mb-8"
-      >
-        {leaderboard.slice(0, 3).map((user, index) => {
-          const positions = [1, 0, 2]; // 2nd, 1st, 3rd order for display
-          const actualIndex = positions[index];
-          const actualUser = leaderboard[actualIndex];
-
-          return (
-            <div
-              key={actualUser.rank}
-              className={`relative rounded-2xl p-6 text-center ${
-                actualUser.rank === 1 ? "bg-gradient-to-br from-yellow-400 to-yellow-600 text-white" :
-                actualUser.rank === 2 ? "bg-gradient-to-br from-gray-300 to-gray-500 text-white" :
-                "bg-gradient-to-br from-orange-400 to-orange-600 text-white"
-              }`}
-              style={{
-                transform: actualUser.rank === 1 ? "scale(1.05)" : "scale(1)",
-                zIndex: actualUser.rank === 1 ? 10 : 5
-              }}
-            >
-              <div className="text-4xl mb-2">🏆</div>
-              <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center text-2xl font-bold mx-auto mb-3">
-                {actualUser.avatar}
-              </div>
-              <h3 className="font-bold text-lg mb-1">{actualUser.name}</h3>
-              <p className="text-sm opacity-90 mb-2">#{actualUser.rank}</p>
-              <div className="flex justify-center gap-1 mb-3">
-                {actualUser.badges.map((badge, badgeIndex) => (
-                  <span key={badgeIndex} className="text-lg" title={badgeDescriptions[badge]}>
-                    {badge}
-                  </span>
-                ))}
-              </div>
-              <div className="text-sm">
-                <p>{actualUser.helpsGiven} helps</p>
-                <p>{actualUser.trustScore}/5 trust</p>
-              </div>
-            </div>
-          );
-        })}
-      </motion.div>
-
-      {/* Full Leaderboard */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.2 }}
         className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden"
       >
-        <div className="p-6 border-b border-slate-200">
+        <div className="px-6 py-4 border-b border-slate-200">
           <h2 className="text-lg font-semibold text-slate-900">Full Rankings</h2>
         </div>
 
-        <div className="divide-y divide-slate-200">
-          {leaderboard.map((user, index) => (
-            <motion.div
-              key={user.rank}
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: index * 0.05 }}
-              className="p-6 hover:bg-slate-50 transition-colors"
-            >
-              <div className="flex items-center gap-4">
-                <div className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold ${getRankStyle(user.rank)}`}>
-                  {user.rank}
-                </div>
-
-                <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-bold">
-                  {user.profilePicture ? (
-                    <img
-                      src={user.profilePicture}
-                      alt={user.name}
-                      className="w-12 h-12 rounded-full object-cover"
-                    />
-                  ) : (
-                    user.name.charAt(0).toUpperCase()
-                  )}
-                </div>
-
-                <div className="flex-1">
-                  <h3 className="font-medium text-slate-900">{user.name}</h3>
-                  <div className="flex items-center gap-4 text-sm text-slate-600">
-                    <span>{user.helpsGiven} helps given</span>
-                    <span>•</span>
-                    <span>Trust Score: {user.trustScore}/5</span>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-2">
-                  {user.badges.map((badge, badgeIndex) => (
-                    <span key={badgeIndex} className="text-lg" title={badgeDescriptions[badge]}>
-                      {badge}
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead className="bg-slate-50 border-b border-slate-200">
+              <tr>
+                <th className="px-6 py-3 text-left text-sm font-semibold text-slate-600">Rank</th>
+                <th className="px-6 py-3 text-left text-sm font-semibold text-slate-600">User</th>
+                <th className="px-6 py-3 text-center text-sm font-semibold text-slate-600">Trust Score</th>
+                <th className="px-6 py-3 text-center text-sm font-semibold text-slate-600">Helps Given</th>
+                <th className="px-6 py-3 text-center text-sm font-semibold text-slate-600">Badges</th>
+                <th className="px-6 py-3 text-right text-sm font-semibold text-slate-600">Change</th>
+              </tr>
+            </thead>
+            <tbody>
+              {leaderboard.map((u, index) => (
+                <motion.tr
+                  key={u.rank}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: index * 0.05 }}
+                  className="border-b border-slate-100 hover:bg-slate-50 transition-colors"
+                >
+                  <td className="px-6 py-4">
+                    <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-white text-sm ${getRankStyle(u.rank)}`}>
+                      {u.rank}
+                    </div>
+                  </td>
+                  <td className="px-6 py-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-bold text-sm">
+                        {getInitials(u.name)}
+                      </div>
+                      <span className="font-medium text-slate-900">{u.name}</span>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 text-center">
+                    <div className="flex items-center justify-center gap-1 font-semibold">
+                      <Star className="w-4 h-4" />
+                      <span>{u.trustScore?.toFixed(1) || "N/A"}</span>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 text-center">
+                    <span className="font-semibold text-slate-900">{u.helpsGiven}</span>
+                  </td>
+                  <td className="px-6 py-4 text-center">
+                    <div className="flex gap-1 justify-center">
+                      {u.badges?.map((badge, i) => (
+                        <span key={i} className="text-lg">{badge}</span>
+                      ))}
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 text-right">
+                    <span className={`font-semibold ${getChangeColor(u.change)}`}>
+                      {typeof u.change === "number" ? (u.change > 0 ? "+" : "") + u.change : u.change}
                     </span>
-                  ))}
-                </div>
-
-                <div className="text-right">
-                  <div className={`text-sm font-medium ${getChangeColor(user.change)}`}>
-                    {user.change}
-                  </div>
-                  <div className="text-xs text-slate-500">vs last period</div>
-                </div>
-              </div>
-            </motion.div>
-          ))}
+                  </td>
+                </motion.tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       </motion.div>
 
-      {/* Badge Legend */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.4 }}
-        className="bg-slate-50 border border-slate-200 rounded-2xl p-6"
-      >
-        <h3 className="font-semibold text-slate-900 mb-4">Badge System</h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {Object.entries(badgeDescriptions).map(([badge, description]) => (
-            <div key={badge} className="flex items-center gap-3">
-              <span className="text-2xl">{badge}</span>
-              <div>
-                <p className="font-medium text-slate-900">{description}</p>
-              </div>
-            </div>
-          ))}
+      {/* Empty State */}
+      {leaderboard.length === 0 && !loading && (
+        <div className="text-center py-12">
+          <p className="text-slate-500">No leaderboard data available yet</p>
         </div>
-      </motion.div>
+      )}
     </div>
   );
 }

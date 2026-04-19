@@ -10,14 +10,14 @@ const Home = () => {
                 <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.25 15L18 16.125l-1.125.125 1.125.125L18 17.5l.125-1.125L19.25 16.25l-1.125-.125L18.25 15z" />
             </svg>
         ),
+        Rocket: () => (
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15.59 14.37a6 6 0 01-5.84 7.38v-4.8m5.84-2.58a14.98 14.98 0 006.16-12.12A14.98 14.98 0 009.631 8.41m5.96 5.96a14.926 14.926 0 01-5.841 2.58m-.119-8.54a6 6 0 00-7.381 5.84h4.8m2.581-5.84a14.926 14.926 0 015.84-2.58m2.58 5.84a14.927 14.927 0 00-2.58-5.84m-5.84 2.58a6 6 0 015.84-5.84v4.8m-5.84 2.58a14.927 14.927 0 002.58 5.84" />
+            </svg>
+        ),
         ArrowRight: () => (
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-5 h-5">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
-            </svg>
-        ),
-        Rocket: () => (
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M15.59 14.37a6 6 0 01-5.84 7.38v-4.8m5.84-2.58a14.98 14.98 0 006.16-12.12A14.98 14.98 0 009.63 8.41a6 6 0 015.96 5.96z" />
             </svg>
         )
     };
@@ -49,8 +49,9 @@ const Home = () => {
             {/* 2. HERO SECTION */}
             <section className="pt-48 pb-24 px-6 text-center bg-gradient-to-b from-blue-50/50 to-transparent">
                 <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-4xl mx-auto">
-                    <span className="bg-blue-100 text-blue-700 px-4 py-1.5 rounded-full text-[11px] font-black uppercase tracking-widest">
-                        🚀 Final Project Prep
+                    <span className="bg-blue-100 text-blue-700 px-4 py-1.5 rounded-full text-[11px] font-black uppercase tracking-widest flex items-center gap-1.5">
+                        <Icons.Rocket />
+                        Final Project Prep
                     </span>
                     <h1 className="text-6xl md:text-8xl font-black tracking-tighter leading-[0.95] mt-8 mb-6">
                         Building the next <br /> <span className="text-blue-600">Generation</span> of Apps.
